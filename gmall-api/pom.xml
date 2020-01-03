@@ -12,5 +12,29 @@
     <!--公共bean、模型类、异常、通用类-->
     <artifactId>gmall-api</artifactId>
 
+    <!--导入后来公用的包-->
+    <dependencies>
+
+        <dependency>
+            <groupId>com.atguigu.gmall</groupId>
+            <artifactId>gmall-common</artifactId>
+            <version>xin-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.alibaba.boot</groupId>
+            <artifactId>dubbo-spring-boot-starter</artifactId>
+            <version>0.2.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-boot-starter</artifactId>
+            <version>3.1.0</version>
+            <!--可选依赖，只是为了防止工程mp的注解报错问题-->
+            <!--<optional>true</optional>-->
+        </dependency>
+
+    </dependencies>
 
 </project>

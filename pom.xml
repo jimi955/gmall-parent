@@ -16,6 +16,7 @@
         <module>gmall-pms</module>
         <module>gmall-sms</module>
         <module>gmall-ums</module>
+        <module>gmall-mbg</module>
     </modules>
 
 
