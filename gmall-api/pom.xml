@@ -21,6 +21,7 @@
             <version>xin-SNAPSHOT</version>
         </dependency>
 
+        <!--启动dubbo-->
         <dependency>
             <groupId>com.alibaba.boot</groupId>
             <artifactId>dubbo-spring-boot-starter</artifactId>
