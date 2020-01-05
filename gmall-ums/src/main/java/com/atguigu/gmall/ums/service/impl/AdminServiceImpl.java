@@ -17,4 +17,9 @@ import org.springframework.stereotype.Service;
 @Service
 public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements AdminService {
 
+    @Override
+    public Admin login(String username, String password) {
+
+        return null;
+    }
 }

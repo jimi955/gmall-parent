@@ -38,17 +38,14 @@
         </dependency>
 
 
-        <!--<dependency>-->
-        <!--<groupId>com.baomidou</groupId>-->
-        <!--<artifactId>mybatis-plus-boot-starter</artifactId>-->
-        <!--<version>3.1.0</version>-->
-        <!--</dependency>-->
-        <!-- https://mvnrepository.com/artifact/io.shardingjdbc/sharding-jdbc-core -->
+        <!--引入shardingjdbc创建主从数据源-->
         <dependency>
             <groupId>io.shardingjdbc</groupId>
             <artifactId>sharding-jdbc-core</artifactId>
             <version>2.0.3</version>
         </dependency>
+
+        <!--数据库驱动-->
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>

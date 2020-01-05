@@ -40,20 +40,13 @@
             <version>xin-SNAPSHOT</version>
         </dependency>
 
-
-        <!--<dependency>-->
-        <!--<groupId>com.baomidou</groupId>-->
-        <!--<artifactId>mybatis-plus-boot-starter</artifactId>-->
-        <!--<version>3.1.0</version>-->
-        <!--</dependency>-->
-        <!-- https://mvnrepository.com/artifact/io.shardingjdbc/sharding-jdbc-core -->
-
-        <!--数据源-->
+        <!--引入shardingjdbc创建主从数据源-->
         <dependency>
             <groupId>io.shardingjdbc</groupId>
             <artifactId>sharding-jdbc-core</artifactId>
             <version>2.0.3</version>
         </dependency>
+
         <!--数据库驱动-->
         <dependency>
             <groupId>mysql</groupId>
@@ -61,12 +54,6 @@
             <version>5.1.47</version>
         </dependency>
 
-        <!--引入shardingjdbc创建主从数据源-->
-        <dependency>
-            <groupId>io.shardingjdbc</groupId>
-            <artifactId>sharding-jdbc-core</artifactId>
-            <version>2.0.3</version>
-        </dependency>
 
     </dependencies>
 

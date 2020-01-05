@@ -10,7 +10,10 @@ import javax.sql.DataSource;
 import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
-
+/**
+ * 使用sharding-jdbc链接主从数据库（多个数据库）
+ * 使用配置类加载xml配置信息
+ */
 @Configuration
 public class PmsDataSourceConfig {
 
