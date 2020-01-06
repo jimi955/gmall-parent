@@ -10,20 +10,37 @@ import com.atguigu.gmall.to.CommonResult;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
  * 后台用户管理
+ * <p>
+ * 如何使用校验：
+ * springmvc支持使用JSR303 方式进行校验
+ * 1:springboot默认导入了第三方的校验框架 hibernate-validator
+ * 使用JSR303三大步：以UmsAdminParam为例
+ * 1）：给需要检验数据的javabean上标上注解
+ * 2）：告诉SpringBoot 这个需要校验 @Valid
+ * springmvc进入方法之前经行校验 如果不成功 不执行方法
+ * 3): 如何感知检验失败还是成功：
+ * 只要开启了校验的JavaBean的参数后面加一个BindingResult对象就可以获取实验结果
+ * 只要有BindingResult 即使校验错了方法也会执行 我们需要手动处理
+ * <p>
+ * 异常处理
  */
+@Slf4j  // 自动生成log对象
 @CrossOrigin  // 支持跨域
 @RestController
 @Api(tags = "AdminController", description = "后台用户管理")
@@ -41,10 +58,12 @@ public class UmsAdminController {
 
     @ApiOperation(value = "用户注册")
     @PostMapping(value = "/register")
-    public Object register(@RequestBody UmsAdminParam umsAdminParam, BindingResult result) {
+    public Object register(@Valid @RequestBody UmsAdminParam umsAdminParam, BindingResult result) {
         Admin admin = null;
+        // 使用aop切面完成封装数据的检验 见类DataValidAspect
         //TODO 完成注册功能
-
+        log.debug("需要注册用户的详情：{}", umsAdminParam);
+        int a = 10 / 0;
         return new CommonResult().success(admin);
     }
 
@@ -53,6 +72,7 @@ public class UmsAdminController {
      * public Object login(@RequestBody UmsAdminLoginParam umsAdminLoginParam, BindingResult result)
      * 如果前端发送的是k=v&k=v字符串 使用如下封装对象
      * public Object login(UmsAdminLoginParam umsAdminLoginParam, BindingResult result)
+     *
      * @param
      * @result
      */
@@ -60,7 +80,7 @@ public class UmsAdminController {
     @PostMapping(value = "/login")
     public Object login(@RequestBody UmsAdminLoginParam umsAdminLoginParam, BindingResult result) {
         //去数据库登陆
-         Admin admin = adminService.login(umsAdminLoginParam.getUsername(), umsAdminLoginParam.getPassword());
+        Admin admin = adminService.login(umsAdminLoginParam.getUsername(), umsAdminLoginParam.getPassword());
 //        Admin admin = null;
         //登陆成功生成token，此token携带基本用户信息，以后就不用去数据库了
         String token = jwtTokenUtil.generateToken(admin);
@@ -102,10 +122,14 @@ public class UmsAdminController {
     @ResponseBody
     public Object getAdminInfo(HttpServletRequest request) {
         String oldToken = request.getHeader(tokenHeader);
-        String userName = jwtTokenUtil.getUserNameFromToken(oldToken);
+        String userName = jwtTokenUtil.getUserNameFromToken(oldToken.substring(tokenHead.length()));
+        //1.getOne是mybatis-plus生成的 而且带了泛型的
+        //2.dubbo没办法直接调用mp中带泛型的service;
+        //3.实战经验：
+        // mp生成的可能存在兼容问题日 最好不要远程调用
+        // Admin umsAdmin = adminService.getOne(new QueryWrapper<Admin>().eq("username", userName));
 
-         Admin umsAdmin = adminService.getOne(new QueryWrapper<Admin>().eq("username", userName));
-//        Admin umsAdmin = null;
+        Admin umsAdmin = adminService.getUserInfo(userName);
         Map<String, Object> data = new HashMap<>();
         data.put("username", umsAdmin.getUsername());
         data.put("roles", new String[]{"TEST"});

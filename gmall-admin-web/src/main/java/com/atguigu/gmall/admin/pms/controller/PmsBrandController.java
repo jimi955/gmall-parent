@@ -1,8 +1,7 @@
 package com.atguigu.gmall.admin.pms.controller;
 
 import com.alibaba.dubbo.config.annotation.Reference;
-import com.atguigu.gmall.admin.pms.vo.PmsBrandParam;
-import com.atguigu.gmall.pms.entity.Brand;
+import com.atguigu.gmall.pms.vo.PmsBrandParam;
 import com.atguigu.gmall.pms.service.BrandService;
 import com.atguigu.gmall.to.CommonResult;
 //import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -13,12 +12,14 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 品牌功能Controller
  */
+@CrossOrigin
 @RestController
-@Api(tags = "PmsBrandController",description = "商品品牌管理")
+@Api(tags = "PmsBrandController", description = "商品品牌管理")
 @RequestMapping("/brand")
 public class PmsBrandController {
     @Reference
@@ -44,8 +45,8 @@ public class PmsBrandController {
     @ApiOperation(value = "更新品牌")
     @PostMapping(value = "/update/{id}")
     public Object update(@PathVariable("id") Long id,
-                              @Validated @RequestBody PmsBrandParam pmsBrandParam,
-                              BindingResult result) {
+                         @Validated @RequestBody PmsBrandParam pmsBrandParam,
+                         BindingResult result) {
         CommonResult commonResult = new CommonResult();
 
         //TODO 更新品牌
@@ -66,14 +67,13 @@ public class PmsBrandController {
     @ApiOperation(value = "根据品牌名称分页获取品牌列表")
     @GetMapping(value = "/list")
     public Object getList(@RequestParam(value = "keyword", required = false) String keyword,
-                            @RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
-                            @RequestParam(value = "pageSize", defaultValue = "5") Integer pageSize) {
-        CommonResult commonResult = new CommonResult();
-
+                          @RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
+                          @RequestParam(value = "pageSize", defaultValue = "5") Integer pageSize) {
         //TODO 根据品牌名称分页获取品牌列表
+        // 根据品牌名称分页获取品牌列表
+        Map<String, Object> brandPageInfo = brandService.pageBrand(keyword, pageNum, pageSize);
 
-
-        return commonResult;
+        return new CommonResult().success(brandPageInfo);
     }
 
     @ApiOperation(value = "根据编号查询品牌信息")

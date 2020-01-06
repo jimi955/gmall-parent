@@ -1,17 +1,18 @@
-package com.atguigu.gmall.admin.pms.vo;
+package com.atguigu.gmall.pms.vo;
 
-import com.atguigu.gmall.admin.validator.FlagValidator;
+import com.atguigu.gmall.validator.FlagValidator;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.Min;
+import javax.validation.constraints.NotEmpty;
+import java.io.Serializable;
 
 /**
  * 品牌传递参数
  */
 @Data
-public class PmsBrandParam {
+public class PmsBrandParam implements Serializable {
     @ApiModelProperty(value = "品牌名称",required = true)
     @NotEmpty(message = "名称不能为空")
     private String name;

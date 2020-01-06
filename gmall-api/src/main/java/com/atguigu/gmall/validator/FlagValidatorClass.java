@@ -1,4 +1,4 @@
-package com.atguigu.gmall.admin.validator;
+package com.atguigu.gmall.validator;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;

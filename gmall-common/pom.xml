@@ -37,7 +37,7 @@
             <version>1.2.56</version>
         </dependency>
 
-        <!--集成logstash-->
+        <!--集成logstash组合logback 用于es检索 在通过Kibana查询日志-->
         <dependency>
             <groupId>net.logstash.logback</groupId>
             <artifactId>logstash-logback-encoder</artifactId>

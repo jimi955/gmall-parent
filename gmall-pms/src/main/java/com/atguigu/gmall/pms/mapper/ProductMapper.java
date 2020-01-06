@@ -2,6 +2,7 @@ package com.atguigu.gmall.pms.mapper;
 
 import com.atguigu.gmall.pms.entity.Product;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.springframework.stereotype.Repository;
 
 /**
  * <p>

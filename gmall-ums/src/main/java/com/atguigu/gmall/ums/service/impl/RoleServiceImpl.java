@@ -1,11 +1,10 @@
 package com.atguigu.gmall.ums.service.impl;
 
-import com.alibaba.dubbo.config.annotation.Service;
 import com.atguigu.gmall.ums.entity.Role;
 import com.atguigu.gmall.ums.mapper.RoleMapper;
 import com.atguigu.gmall.ums.service.RoleService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 /**
  * <p>
@@ -15,7 +14,6 @@ import org.springframework.stereotype.Component;
  * @author Lfy
  * @since 2020-01-04
  */
-@Component
 @Service
 public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements RoleService {
 
