@@ -54,6 +54,18 @@
             <version>5.1.47</version>
         </dependency>
 
+        <!--缓存使用redis组件-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
+
+        <!--引入aop切面-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aop</artifactId>
+        </dependency>
+
 
     </dependencies>
 

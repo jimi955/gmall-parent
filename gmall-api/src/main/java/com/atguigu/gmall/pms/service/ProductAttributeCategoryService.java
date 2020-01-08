@@ -3,6 +3,8 @@ package com.atguigu.gmall.pms.service;
 import com.atguigu.gmall.pms.entity.ProductAttributeCategory;
 import com.baomidou.mybatisplus.extension.service.IService;
 
+import java.util.Map;
+
 /**
  * <p>
  * 产品属性分类表 服务类
@@ -13,4 +15,5 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface ProductAttributeCategoryService extends IService<ProductAttributeCategory> {
 
+    Map<String, Object> getProductAttributePageInfo(Integer pageNum, Integer pageSize);
 }

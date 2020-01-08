@@ -1,6 +1,7 @@
 package com.atguigu.gmall.pms.service;
 
 import com.atguigu.gmall.pms.entity.Product;
+import com.atguigu.gmall.pms.vo.PmsProductParam;
 import com.atguigu.gmall.pms.vo.PmsProductQueryParam;
 import com.baomidou.mybatisplus.extension.service.IService;
 
@@ -17,4 +18,6 @@ import java.util.Map;
 public interface ProductService extends IService<Product> {
 
     Map<String, Object> pageProduct(PmsProductQueryParam param);
+
+    void saveProduct(PmsProductParam productParam);
 }
