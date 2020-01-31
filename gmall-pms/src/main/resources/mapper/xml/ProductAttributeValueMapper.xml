@@ -7,4 +7,14 @@
         id, product_id, product_attribute_id, value
     </sql>
 
+    <!--List<EsProductAttributeValue> selectProductAttributeAndValue(Long id);-->
+    <select id="selectProductAttributeAndValue" resultType="com.atguigu.gmall.to.es.EsProductAttributeValue">
+        SELECT pav.*,pa.name,pa.type FROM pms_product_attribute_value as pav LEFT JOIN pms_product_attribute as pa on pa.id=pav.product_attribute_id WHERE pav.product_id=#{id} and type=1;
+    </select>
+
+    <!--List<ProductAttribute> selectProductSaleAttrName(Long id)-->
+    <select id="selectProductSaleAttrName" resultType="com.atguigu.gmall.pms.entity.ProductAttribute">
+        SELECT pa.* FROM pms_product_attribute as pa WHERE pa.product_attribute_category_id=(SELECT pa.product_attribute_category_id FROM pms_product_attribute_value as pav LEFT JOIN pms_product_attribute as pa on pa.id=pav.product_attribute_id WHERE pav.product_id=#{id} and pa.type=0 LIMIT 1) and pa.type=0 ORDER BY sort DESC;
+    </select>
+
 </mapper>

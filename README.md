@@ -28,3 +28,4 @@ dubbo服务端口分配
     211xx gmall-wms（Warehouse Manage System：仓库管理系统[库存，出入库等]）[ service]
     212xx gmall-ums（User Manage System：用户管理系统[会员/管理员、登陆、注销等]）[service]
     213xx gmall-sms（Sale Manage System：营销管理系统[优惠券、活动等]）[service]
+    214xx gmall-search 检索服务

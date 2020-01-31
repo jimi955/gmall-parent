@@ -5,6 +5,7 @@ import com.atguigu.gmall.pms.vo.PmsProductParam;
 import com.atguigu.gmall.pms.vo.PmsProductQueryParam;
 import com.baomidou.mybatisplus.extension.service.IService;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -17,7 +18,11 @@ import java.util.Map;
  */
 public interface ProductService extends IService<Product> {
 
+    Product productInfo(Long id);
+
     Map<String, Object> pageProduct(PmsProductQueryParam param);
 
     void saveProduct(PmsProductParam productParam);
+    // 批量上下架
+    void updatePublishStatus(List<Long> ids, Integer publishStatus);
 }
