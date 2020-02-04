@@ -1,6 +1,7 @@
 package com.atguigu.gmall.pms.service.impl;
 
 import com.alibaba.dubbo.config.annotation.Service;
+import com.atguigu.gmall.constant.EsConstant;
 import com.atguigu.gmall.pms.entity.*;
 import com.atguigu.gmall.pms.mapper.*;
 import com.atguigu.gmall.pms.service.ProductService;
@@ -14,11 +15,12 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import io.searchbox.client.JestClient;
-import io.searchbox.core.Delete;
-import io.searchbox.core.DocumentResult;
-import io.searchbox.core.Index;
+import io.searchbox.core.*;
 import lombok.extern.slf4j.Slf4j;
 import net.logstash.logback.encoder.org.apache.commons.lang.StringUtils;
+import org.apache.lucene.search.join.ScoreMode;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -104,7 +106,6 @@ import static com.atguigu.gmall.constant.EsConstant.*;
  * @Transactional(rollbackFor={Exceptioin.class}) :所有的异常都回滚
  * @Transactional的noRollbackFor 指定哪些异常不回滚
  * @Transactional(rollbackFor={Exceptioin.class}) :所有的异常都不回滚
- *
  */
 @Slf4j
 @Component
@@ -268,6 +269,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
      * dubbo默认集群容错有哪几种？怎么做？
      * failover failfast failsafe failback forking
      * 使用方式 在@Service注解上添加参数配置
+     *
      * @param ids
      * @param publishStatus
      */
@@ -298,13 +300,13 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
         Delete build = new Delete.Builder(id.toString()).index(PRODUCT_INDEX).type(PRODUCT_TYPE).build();
         try {
             DocumentResult execute = jestClient.execute(build);
-            if(execute.isSucceeded()){
-                log.info("商品：{} ==》ES下架成功",id);
-            }else{
-                log.error("商品：{} ==》ES下架失败",id);
+            if (execute.isSucceeded()) {
+                log.info("商品：{} ==》ES下架成功", id);
+            } else {
+                log.error("商品：{} ==》ES下架失败", id);
             }
         } catch (IOException e) {
-            log.error("商品：{} ==》ES下架失败",id);
+            log.error("商品：{} ==》ES下架失败", id);
         }
     }
 
@@ -391,5 +393,46 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
         product.setPublishStatus(publishStatus);
         // mybatis-plus 自带的更新方法是哪个字段有值就更新哪个字段
         productMapper.updateById(product);
+    }
+
+    @Override
+    public EsProduct productAllInfo(Long id) {
+        EsProduct esProduct = null;
+        //按照id查出商品
+        SearchSourceBuilder builder = new SearchSourceBuilder();
+        builder.query(QueryBuilders.termQuery("id", id));
+
+
+        Search build = new Search.Builder(builder.toString())
+                .addIndex(PRODUCT_INDEX)
+                .addType(PRODUCT_TYPE)
+                .build();
+        try {
+            SearchResult execute = jestClient.execute(build);
+
+            List<SearchResult.Hit<EsProduct, Void>> hits = execute.getHits(EsProduct.class);
+            esProduct = hits.get(0).source;
+        } catch (IOException e) {
+
+        }
+        return esProduct;
+    }
+
+    @Override
+    public EsProduct produSkuInfo(Long id) {
+        EsProduct esProduct = null;
+        //按照id查出商品
+        SearchSourceBuilder builder = new SearchSourceBuilder();
+        builder.query(QueryBuilders.nestedQuery("skuProductInfos",QueryBuilders.termQuery("skuProductInfos.id",id), ScoreMode.None));
+
+        Search build = new Search.Builder(builder.toString()).addIndex(PRODUCT_INDEX).addType(PRODUCT_TYPE).build();
+        try {
+            SearchResult execute = jestClient.execute(build);
+            List<SearchResult.Hit<EsProduct, Void>> hits = execute.getHits(EsProduct.class);
+            esProduct = hits.get(0).source;
+        } catch (IOException e) {
+            log.error("es查询失败 produSkuInfo");
+        }
+        return esProduct;
     }
 }

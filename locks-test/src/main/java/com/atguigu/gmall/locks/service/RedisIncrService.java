@@ -1,16 +1,20 @@
 package com.atguigu.gmall.locks.service;
 
+import org.redisson.api.RLock;
+import org.redisson.api.RReadWriteLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
-import org.springframework.scripting.support.ResourceScriptSource;
 import org.springframework.stereotype.Service;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.params.SetParams;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -18,7 +22,35 @@ import java.util.concurrent.locks.ReentrantLock;
  synchronized 和 ReentrantLock
  在单机内好用 但是分布式不行
 
+锁的设置：
+    1）自旋：
+        自旋次数
+        自旋超时
+    2）锁设置
+        锁的粒度 细 记录级别
+            1）各自服务各自锁
+            2）分析好粒度 不要锁住无关数据 一种数据一种锁 一条数据一个锁
+    3）锁类型
+        读写锁
 
+ 查询商品详情 进缓存-->击穿 穿透 雪崩
+    查商品
+ public Product productInfo(String productId){
+    Product cache = jedis.get(productId);
+    if(cache!=null){
+        return cache;
+    }else{
+        // 各自服务各自锁
+        String lock = jedis.set("lock", token, SetParams.setParams().ex(3).nx());
+        if(lock!=null){
+            //查数据库
+            Product product = getFromDb();
+            jedis.set(productId,product);
+        }else{
+            return productInfo(productId); // 自旋
+        }
+     }
+ }
 
 
  */
@@ -204,7 +236,12 @@ public class RedisIncrService {
             redisTemplate.execute(script1, keys,token);
             System.out.println("删除锁完成2----");
         }else{
-            incrDistribute(); // 自旋
+            try {
+                Thread.sleep(1000);
+                incrDistribute(); // 自旋
+            }catch(InterruptedException e){
+                e.printStackTrace();
+            }
         }
     }
 
@@ -219,21 +256,133 @@ public class RedisIncrService {
      */
     public void incrDistribute2() {
         Jedis jedis = jedisPool.getResource();
+        try {
+            String token = UUID.randomUUID().toString();
+            String lock = jedis.set("lock", token, SetParams.setParams().ex(3).nx());
+            if(lock != null && lock.equalsIgnoreCase("OK")){
+                String num = jedis.get("num");
+                if (num != null) {
+                    jedis.set("num", String.valueOf(Integer.parseInt(num)+ 1));
+                }
 
-        String token = UUID.randomUUID().toString();
-        String lock = jedis.set("lock", token, SetParams.setParams().ex(3).nx());
-        if(lock.equalsIgnoreCase("OK")){
-            String num = jedis.get("num");
-            if (num != null) {
-                jedis.set("num", String.valueOf(Integer.parseInt(num)+ 1));
+                //删锁
+                String script = "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end";
+                jedis.eval(script, Collections.singletonList("lock"), Collections.singletonList(token));
+                System.out.println("删除锁3完成----");
+            }else{
+                try {
+                    Thread.sleep(1000);
+                    incrDistribute2(); // 自旋
+                }catch(InterruptedException e){
+                    e.printStackTrace();
+                }
             }
-
-            //删锁
-            String script = "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end";
-            jedis.eval(script, Collections.singletonList("lock"), Collections.singletonList(token));
-            System.out.println("删除锁3完成----");
-        }else{
-            incrDistribute(); // 自旋
+        }finally {
+            jedis.close();
         }
     }
+
+    @Autowired
+    RedissonClient redisson;
+
+    // use Redission For Lock
+    public void incrDistribute4() {
+        RLock lock = redisson.getLock("lock");
+        try {
+            // lock.lock() // 一直等待
+            // 感知别人删锁  发布订阅模式（实施感知）  不会自旋占用资源 但是仍然会阻塞 等待redis的解锁通知
+            // lock监听redis redis一旦删锁 赶紧尝试加锁
+            // 每个线程的锁一定是这个线程解
+
+            // lock.lock() //默认是阻塞的
+            // lock.tryLock() // 是非阻塞的 尝试一次 不行就算了
+            // lock.tryLock(100,10,TimeUnit=SECONDS); // 尝试一次 等待100s 不行就算了 成功的话锁的有效期是10s
+            lock.lock();
+            ValueOperations<String, String> stringStringValueOperations = redisTemplate.opsForValue();
+            String num = stringStringValueOperations.get("num");
+            if (num != null) {
+                Integer i = Integer.parseInt(num) + 1;
+                stringStringValueOperations.set("num", i.toString());
+            }
+        } finally {
+            lock.unlock(); //redisson解锁具有原子性
+        }
+    }
+
+
+    /**
+     * 写锁是个排他锁（独占锁）
+     * 读锁是一个共享锁
+     *
+     * 有写锁 写锁以后的读都不可以 只有写锁释放才能读
+     */
+    private String hello = "hello";
+    public String read() {
+        RReadWriteLock helloValue = redisson.getReadWriteLock("helloValue");
+        RLock rLock = helloValue.readLock();
+        rLock.lock();
+        String a = hello;
+        rLock.unlock();
+        return a;
+    }
+
+    public String write() throws InterruptedException {
+        RReadWriteLock helloValue = redisson.getReadWriteLock("helloValue");
+        RLock rLock = helloValue.writeLock();
+        rLock.lock();
+        Thread.sleep(3000);
+        String a = UUID.randomUUID().toString();
+        rLock.unlock();
+        return a;
+    }
+
+    /**
+     * 错误的场景
+     * 1、两个服务及俩个服务以上操作相同的数据 如果涉及到读写
+     *      独加读锁 写加写锁
+     *
+     * 对于一个服务内读写  直接一个synchronized搞定
+     */
+    public void unlock(){
+        RReadWriteLock helloValue = redisson.getReadWriteLock("helloValue");
+        RLock rLock = helloValue.readLock();
+        RLock rLock1 = helloValue.writeLock();
+
+        //修改一号记录
+        rLock1.lock();
+        // 修改
+
+        //读操作
+        rLock.lock();
+
+
+    }
+
+/**
+ * 缓存
+ *问题：
+ * 	查询频率高，数据变化率不是太快的 我们进缓存 缓存数据库同步----
+ *
+ *
+ * # 我们读取数据的时候：
+ *
+ * If(readLock){
+ * 	Data data = readFromCache();
+ * 	If(data==null){
+ * 		data = readFromDb();
+ * 		setToCache(data);
+ * }
+ * }
+ *
+ * # 写数据的时候：
+ * If(writeLock){
+ * 	    Data data = xxxx;
+ * 	    updateDataToDb(data);
+ *  	setToCache(data);
+ * }
+ *
+ * 双写+读写锁 保证一致性
+ * 下单 查价格 需要看最新的价格 我们使用读锁
+ * 其他的（商品详情页）查看价格 直接去缓存获取 不需要使用读锁 即使数据不是最新的也无所谓
+ */
 }

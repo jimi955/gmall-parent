@@ -31,4 +31,21 @@ public class RedisIncrController {
         redisIncrService.incrDistribute2();
         return "ok3";
     }
+
+    // Redission 分布式 锁应用
+    @GetMapping("/incr4")
+    public String incr4() {
+        redisIncrService.incrDistribute4();
+        return "ok4";
+    }
+
+
+    @GetMapping("/read")
+    public String read(){
+        return redisIncrService.read();
+    }
+    @GetMapping("/write")
+    public String write() throws InterruptedException {
+        return redisIncrService.write();
+    }
 }

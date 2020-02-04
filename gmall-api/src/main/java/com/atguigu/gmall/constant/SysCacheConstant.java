@@ -1,8 +1,15 @@
 package com.atguigu.gmall.constant;
 
 /**
- * 系统常量
+ * 系统中使用的常量
  */
 public class SysCacheConstant {
-    public static final String PRODUCT_CATEGORY_CACHE_KEY = "sys_category";
+
+
+    //系统菜单
+    public static final String CATEGORY_MENU_CACHE_KEY = "sys_category";
+    //登录的用户  login:member:token={userObj}
+    public static final String LOGIN_MEMBER = "login:member:";
+
+    public static final Long LOGIN_MEMBER_TIMEOUT = 30L;
 }
