@@ -1,7 +1,6 @@
 package com.atguigu.gmall.pms.service.impl;
 
 import com.alibaba.dubbo.config.annotation.Service;
-import com.atguigu.gmall.constant.EsConstant;
 import com.atguigu.gmall.pms.entity.*;
 import com.atguigu.gmall.pms.mapper.*;
 import com.atguigu.gmall.pms.service.ProductService;

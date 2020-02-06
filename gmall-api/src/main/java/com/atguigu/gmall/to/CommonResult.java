@@ -16,7 +16,7 @@ public class CommonResult {
     //未认证
     public static final int UNAUTHORIZED = 401;
     //未授权
-    public static final int  FORBIDDEN = 403;
+    public static final int FORBIDDEN = 403;
     private int code;
     private String message;
     private Object data;
@@ -32,7 +32,6 @@ public class CommonResult {
         this.data = data;
         return this;
     }
-
 
 
     /**
@@ -81,6 +80,7 @@ public class CommonResult {
 
     /**
      * 参数验证失败使用
+     *
      * @param result 错误信息
      */
     public CommonResult validateFailed(BindingResult result) {

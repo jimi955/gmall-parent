@@ -8,7 +8,7 @@
         <version>2.1.3.RELEASE</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>com.atguigu.gmall</groupId>
+    <groupId>com.atguigu.locks</groupId>
     <artifactId>locks-test</artifactId>
     <version>xin-SNAPSHOT</version>
     <name>locks-test</name>

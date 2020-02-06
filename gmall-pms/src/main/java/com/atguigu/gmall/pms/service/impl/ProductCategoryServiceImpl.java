@@ -44,7 +44,7 @@ public class ProductCategoryServiceImpl extends ServiceImpl<ProductCategoryMappe
     public List<PmsProductCategoryWithChildrenItem> listWithChildren() {
 
         ValueOperations<Object, Object> ops = redisTemplate.opsForValue();
-        Object cache = ops.get(SysCacheConstant.PRODUCT_CATEGORY_CACHE_KEY);
+        Object cache = ops.get(SysCacheConstant.CATEGORY_MENU_CACHE_KEY);
         List<PmsProductCategoryWithChildrenItem> items;
         if (cache != null) {
             log.debug("PRODUCT_CATEGORY_CACHE 缓存命中....");
@@ -56,7 +56,7 @@ public class ProductCategoryServiceImpl extends ServiceImpl<ProductCategoryMappe
 
         items = productCategoryMapper.listWithChildren(0); // 查询一级子目录
         // 存入缓存
-        ops.set(SysCacheConstant.PRODUCT_CATEGORY_CACHE_KEY, items);
+        ops.set(SysCacheConstant.CATEGORY_MENU_CACHE_KEY, items);
         return items;
     }
 }
