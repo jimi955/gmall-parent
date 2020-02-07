@@ -43,32 +43,28 @@ public class OrderController {
      * 当信息确认完成以后下一步要提交订单。我们必须做防重复验证【接口幂等性设计】；
      * 1）、以前利用防重的令牌以后。
      * 接口幂等性设计：
-     *    select：
-     *    insert/delete/update【幂等性设计】；
-     *
+     * select：
+     * insert/delete/update【幂等性设计】；
+     * <p>
      * 2）、数据层面怎么幂等？可用数据库的锁机制保证在数据库层面多次请求幂等
-     *    insert();【如果id不是自增，传入id】
-     *    delete();【在数据层如果带id删除，幂等操作】
-     *    update();【乐观锁】  update set stock=stock-1,version=version+1 where skuId=1 and version=1
-     *
+     * insert();【如果id不是自增，传入id】
+     * delete();【在数据层如果带id删除，幂等操作】
+     * update();【乐观锁】  update set stock=stock-1,version=version+1 where skuId=1 and version=1
+     * <p>
      * 3）、业务层面；
-     *    分布式锁_【令牌防重】。 order:member:1;
-     *    分布式锁并发下单；
-     *
-     *
-     *
-     *
+     * 分布式锁_【令牌防重】。 order:member:1;
+     * 分布式锁并发下单；
      *
      * @param accessToken
      * @return
      */
     @ApiOperation("订单确认")
     @GetMapping("/confirm")
-    public CommonResult confirmOrder(@RequestParam("accessToken") String accessToken){
-        
+    public CommonResult confirmOrder(@RequestParam("accessToken") String accessToken) {
+
         //0、检查用户是否存在
         String memberJson = redisTemplate.opsForValue().get(SysCacheConstant.LOGIN_MEMBER + accessToken);
-        if(StringUtils.isEmpty(accessToken)||StringUtils.isEmpty(memberJson)){
+        if (StringUtils.isEmpty(accessToken) || StringUtils.isEmpty(memberJson)) {
             CommonResult failed = new CommonResult().failed();
             failed.setMessage("用户未登录，请先登录");
             //用户未登录
@@ -87,7 +83,7 @@ public class OrderController {
          *
          */
         //dubbo的RPC隐式传参；setAttachment保存一下下一个远程服务需要的参数
-        RpcContext.getContext().setAttachment("accessToken",accessToken);
+        RpcContext.getContext().setAttachment("accessToken", accessToken);
         //调用下一个远程服务 确认订单
         OrderConfirmVo confirm = orderService.orderConfirm(member.getId());
 
@@ -97,6 +93,7 @@ public class OrderController {
 
     /**
      * 创建订单的时候必须用到确认订单的那些数据
+     *
      * @param totalPrice  为了比价；
      * @param accessToken
      * @return
@@ -104,10 +101,10 @@ public class OrderController {
     @ApiOperation("下单")
     @PostMapping("/create")
     public CommonResult createOrder(@RequestParam("totalPrice") BigDecimal totalPrice,
-                              @RequestParam("accessToken") String accessToken,
-                              @RequestParam("addressId") Long addressId,
-                              @RequestParam(value = "note",required = false) String note,
-                                    @RequestParam("orderToken") String orderToken){
+                                    @RequestParam("accessToken") String accessToken,
+                                    @RequestParam("addressId") Long addressId,
+                                    @RequestParam(value = "note", required = false) String note,
+                                    @RequestParam("orderToken") String orderToken) {
 
 
         RpcContext.getContext().setAttachment("accessToken", accessToken);
@@ -115,9 +112,9 @@ public class OrderController {
         //1、创建订单要生成订单（总额）和订单项（购物车中的商品）；
 
         //防重复
-        OrderCreateVo orderCreateVo = orderService.createOrder(totalPrice,addressId,note);
+        OrderCreateVo orderCreateVo = orderService.createOrder(totalPrice, addressId, note);
 
-        if(!StringUtils.isEmpty(orderCreateVo.getToken())){
+        if (!StringUtils.isEmpty(orderCreateVo.getToken())) {
             CommonResult result = new CommonResult().failed();
             result.setMessage(orderCreateVo.getToken());
             return result;
@@ -129,27 +126,26 @@ public class OrderController {
 
     /**
      * 去支付
+     *
      * @return
      */
-    @ResponseBody
-    @GetMapping(value = "/pay",produces = {"text/html"})
+    @GetMapping(value = "/pay", produces = {"text/html"})
     public String pay(@RequestParam("orderSn") String orderSn,
-                      @RequestParam("accessToken") String accessToken){
-        String string = orderService.pay(orderSn,accessToken);
+                      @RequestParam("accessToken") String accessToken) {
+        String string = orderService.pay(orderSn, accessToken);
         return string;
     }
 
     /**
-     * 接收支付宝异步通知
+     * 支付成功后 接收支付宝异步通知
      */
-    @ResponseBody
     @RequestMapping("/pay/success/async")
     public String paySuccess(HttpServletRequest request) throws UnsupportedEncodingException {
 
         //封装支付宝数据
         Map<String, String> params = new HashMap<String, String>();
         Map<String, String[]> requestParams = request.getParameterMap();
-        for (Iterator<String> iter = requestParams.keySet().iterator(); iter.hasNext();) {
+        for (Iterator<String> iter = requestParams.keySet().iterator(); iter.hasNext(); ) {
             String name = (String) iter.next();
             String[] values = (String[]) requestParams.get(name);
             String valueStr = "";
@@ -161,9 +157,14 @@ public class OrderController {
             params.put(name, valueStr);
         }
 
-        log.debug("订单【{}】===支付宝支付异步通知进来....",params.get("out_trade_no"));
+        log.debug("订单【{}】===支付宝支付异步通知进来....", params.get("out_trade_no"));
 
         String result = orderService.resolvePayResult(params);
         return result;
+    }
+
+    @GetMapping("/pay/success")
+    public String paySuccess(@RequestParam("out_trade_no") String out_trade_no) {
+        return "订单已经完成："+out_trade_no + "==> OK";
     }
 }

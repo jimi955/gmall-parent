@@ -4,11 +4,11 @@ import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.RpcContext;
 import com.alibaba.fastjson.JSON;
-//import com.alipay.api.AlipayApiException;
-//import com.alipay.api.AlipayClient;
-//import com.alipay.api.DefaultAlipayClient;
-//import com.alipay.api.internal.util.AlipaySignature;
-//import com.alipay.api.request.AlipayTradePagePayRequest;
+import com.alipay.api.AlipayApiException;
+import com.alipay.api.AlipayClient;
+import com.alipay.api.DefaultAlipayClient;
+import com.alipay.api.internal.util.AlipaySignature;
+import com.alipay.api.request.AlipayTradePagePayRequest;
 import com.atguigu.gmall.cart.service.CartService;
 import com.atguigu.gmall.cart.vo.CartItem;
 import com.atguigu.gmall.constant.OrderStatusEnume;
@@ -233,14 +233,14 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
     public String resolvePayResult(Map<String, String> params) {
 
         boolean signVerified = true;
-//        try {
-//            signVerified = AlipaySignature.rsaCheckV1(params, AlipayConfig.alipay_public_key, AlipayConfig.charset,
-//                    AlipayConfig.sign_type);
-//            System.out.println("验签：" + signVerified);
-//
-//        } catch (AlipayApiException e) {
-//
-//        }
+        try {
+            signVerified = AlipaySignature.rsaCheckV1(params, AlipayConfig.alipay_public_key, AlipayConfig.charset,
+                    AlipayConfig.sign_type);
+            System.out.println("验签：" + signVerified);
+
+        } catch (AlipayApiException e) {
+            log.debug("验签失败----");
+        }
         // 商户订单号
         String out_trade_no = params.get("out_trade_no");
         // 支付宝流水号
@@ -426,40 +426,39 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
                             String total_amount,
                             String subject,
                             String body) {
-//        // 1、创建支付宝客户端
-//        AlipayClient alipayClient = new DefaultAlipayClient(AlipayConfig.gatewayUrl,
-//                AlipayConfig.app_id,
-//                AlipayConfig.merchant_private_key, "json",
-//                AlipayConfig.charset,
-//                AlipayConfig.alipay_public_key,
-//                AlipayConfig.sign_type);
-//
-//        // 2、创建一次支付请求
-//        AlipayTradePagePayRequest alipayRequest = new AlipayTradePagePayRequest();
-//        alipayRequest.setReturnUrl(AlipayConfig.return_url);
-//        alipayRequest.setNotifyUrl(AlipayConfig.notify_url);
-//
-//        // 商户订单号，商户网站订单系统中唯一订单号，必填
-//        // 付款金额，必填
-//        // 订单名称，必填
-//        // 商品描述，可空
-//
-//        // 3、构造支付请求数据
-//        alipayRequest.setBizContent("{\"out_trade_no\":\"" + out_trade_no + "\"," + "\"total_amount\":\"" + total_amount
-//                + "\"," + "\"subject\":\"" + subject + "\"," + "\"body\":\"" + body + "\","
-//                + "\"product_code\":\"FAST_INSTANT_TRADE_PAY\"}");
-//
-//        String result = "";
-//        try {
-//            // 4、请求
-//            result = alipayClient.pageExecute(alipayRequest).getBody();
-//        } catch (AlipayApiException e) {
-//            // TODO Auto-generated catch block
-//            e.printStackTrace();
-//        }
-//
-//        return result;// 支付跳转页的代码
-        return null;
+        // 1、创建支付宝客户端
+        AlipayClient alipayClient = new DefaultAlipayClient(AlipayConfig.gatewayUrl,
+                AlipayConfig.app_id,
+                AlipayConfig.merchant_private_key, "json",
+                AlipayConfig.charset,
+                AlipayConfig.alipay_public_key,
+                AlipayConfig.sign_type);
+
+        // 2、创建一次支付请求
+        AlipayTradePagePayRequest alipayRequest = new AlipayTradePagePayRequest();
+        alipayRequest.setReturnUrl(AlipayConfig.return_url);
+        alipayRequest.setNotifyUrl(AlipayConfig.notify_url);
+
+        // 商户订单号，商户网站订单系统中唯一订单号，必填
+        // 付款金额，必填
+        // 订单名称，必填
+        // 商品描述，可空
+
+        // 3、构造支付请求数据
+        alipayRequest.setBizContent("{\"out_trade_no\":\"" + out_trade_no + "\"," + "\"total_amount\":\"" + total_amount
+                + "\"," + "\"subject\":\"" + subject + "\"," + "\"body\":\"" + body + "\","
+                + "\"product_code\":\"FAST_INSTANT_TRADE_PAY\"}");
+
+        String result = "";
+        try {
+            // 4、请求
+            result = alipayClient.pageExecute(alipayRequest).getBody();
+        } catch (AlipayApiException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        return result;// 支付跳转页的代码
     }
 
 
