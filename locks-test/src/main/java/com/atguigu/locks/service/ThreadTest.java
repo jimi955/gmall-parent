@@ -93,50 +93,55 @@ public class ThreadTest {
 //            System.out.println("最终结果...." + r);
 //        });
 //
+//        System.out.println("主线程获取结果：" + future.get()); // 等待线程池结束
 //
 //        System.out.println("主线程结束......");
 //
 //
 //    }
-
-
-
     public static void main(String[] args) throws ExecutionException, InterruptedException {
         ExecutorService pool = Executors.newFixedThreadPool(10);
 
         CompletableFuture<String> f1 = CompletableFuture.supplyAsync(() -> {
             System.out.println("查询商品基本数据...");
             return "小米";
-        }, pool)
-                .whenComplete((r, e) -> {
-                    System.out.println("结果是：" + r);
-                });
+        }, pool).whenComplete((r, e) -> {
+            System.out.println("f1结果是：" + r);
+        });
 
         CompletableFuture<Integer> f2 = CompletableFuture.supplyAsync(() -> {
             System.out.println("查询商品属性数据...");
             return 1;
         }, pool).whenComplete((r, e) -> {
-            System.out.println("结果是：" + r);
+            System.out.println("f2结果是：" + r);
         });
 
         CompletableFuture<String> f3 = CompletableFuture.supplyAsync(() -> {
             System.out.println("查询商品营销数据...");
+            try {
+                TimeUnit.SECONDS.sleep(3);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             return "满199减100";
         }, pool).whenComplete((r, e) -> {
-            System.out.println("结果是：" + r);
+            System.out.println("f3结果是：" + r);
         });
 
         //所有人都执行完 才能通过
         CompletableFuture<Void> allOf = CompletableFuture.allOf(f1, f2, f3);
         //有一个人执行完就可以通过
-//        CompletableFuture<Object> anyOf = CompletableFuture.anyOf(f1, f2, f3);
+        CompletableFuture<Object> anyOf = CompletableFuture.anyOf(f1, f2, f3);
 
-        //Void aVoid = allOf.get();
-        // allOf.join();//线程插队。
+        //阻塞，直到所有任务结束。
+//        System.out.println(System.currentTimeMillis() + ":阻塞");
+//        allOf.join();
+//        System.out.println("所有人都完成了...." + f1.get());
 
-        System.out.println("所有人都完成了...." + f1.get());
 
-        // CompletableFuture.anyOf(f1,f2,f3);
+//        f3.join();
+        anyOf.join();
+        System.out.println("有一个人完成了 结果是：" + anyOf.get());
 
 
         //以后异步任务的编程模式。。。。。

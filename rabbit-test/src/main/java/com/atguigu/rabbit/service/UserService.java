@@ -81,8 +81,8 @@ public class UserService {
             // 回复消息处理失败，拒绝消息。并且重新入队
             //
             //
-//             channel.basicNack(message.getMessageProperties().getDeliveryTag(),false,true);
-            channel.basicReject(message.getMessageProperties().getDeliveryTag(), false);
+             channel.basicNack(message.getMessageProperties().getDeliveryTag(),false,true);
+//            channel.basicReject(message.getMessageProperties().getDeliveryTag(), false);
             throw new RuntimeException("库存扣除失败");
         }
         System.out.println("扣除成功....");

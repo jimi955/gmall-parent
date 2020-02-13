@@ -21,7 +21,7 @@ public class GmallSwagger2Config {
                 .groupName("后台用户模块")
                 .select()
                 .apis(RequestHandlerSelectors.withClassAnnotation(Api.class))
-                .paths(PathSelectors.regex("/admin.*"))
+                .paths(PathSelectors.regex("/.*"))
                 .build()
                 .apiInfo(apiInfo())
                 .enable(true);

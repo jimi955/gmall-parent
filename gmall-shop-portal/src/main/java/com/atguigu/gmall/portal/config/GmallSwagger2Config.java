@@ -15,13 +15,13 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @Configuration
 public class GmallSwagger2Config {
 
-    @Bean("检索模块")
+    @Bean("前端接口模块")
     public Docket userApis() {
         return new Docket(DocumentationType.SWAGGER_2)
-                .groupName("检索模块")
+                .groupName("前端接口模块")
                 .select()
                 .apis(RequestHandlerSelectors.withClassAnnotation(Api.class))
-                .paths(PathSelectors.regex("/search.*"))
+                .paths(PathSelectors.regex("/.*"))
                 .build()
                 .apiInfo(apiInfo())
                 .enable(true);
@@ -29,8 +29,8 @@ public class GmallSwagger2Config {
 
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
-                .title("谷粒商城-检索平台接口文档")
-                .description("提供检索模块的文档")
+                .title("谷粒商城-响应前端的接口文档")
+                .description("前端的接口服务的文档")
                 .termsOfServiceUrl("http://www.atguigu.com/")
                 .version("1.0")
                 .build();
