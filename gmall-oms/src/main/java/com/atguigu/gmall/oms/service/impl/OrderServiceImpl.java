@@ -143,7 +143,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
          */
         String orderToken = RpcContext.getContext().getAttachment("orderToken");
 
-        //验证令牌的第一种失败
+        // 检验令牌是否为空
         if (StringUtils.isEmpty(orderToken)) {
             OrderCreateVo orderCreateVo = new OrderCreateVo();
             orderCreateVo.setToken("此次操作出现错误，请重新尝试");
@@ -151,7 +151,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         }
 
 
-        //令牌合法性   token = token+"_"+System.currentTimeMillis()+"_"+60*10;
+        // 令牌合法性   token = token+"_"+System.currentTimeMillis()+"_"+60*10;
         String[] s = orderToken.split("_");
         if (s.length != 3) {
             OrderCreateVo orderCreateVo = new OrderCreateVo();
@@ -160,7 +160,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         }
 
 
-        //令牌超时验证
+        // 检验令牌时效性
         long createTime = Long.parseLong(s[1]);
         long timeout = Long.parseLong(s[2]);
         if (System.currentTimeMillis() - createTime >= timeout) {

@@ -88,12 +88,28 @@ public class UserService {
         System.out.println("扣除成功....");
         //回复成功 只回复本条消息
         channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
+        // 支付过不用关单了 修改支付状态
     }
 
 
     @RabbitListener(queues = {"user.order.queue"})
     public void closeOrder(Order order, Channel channel, Message message) throws IOException {
         System.out.println("收到过期订单：" + order + "正在关闭订单");
+        // 过期订单我们收到，判断关闭状态，有可能此时，恰好这个订单被支付了，我们需要实时的获取此订单的支付信息。
+        // 使用分布式锁方式
+        /**
+         * Integer status = getOrderPayStatus()
+         * if(status=0){
+         *      Lock lock = getLock("lock")
+         *      lock.lock();
+         *      status = getOrderPayStatus()
+         *      if (status=0){
+         *          设置订单关闭
+         *      }
+         *     lock.unlock();
+         * }
+         *
+         */
         channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
     }
 

@@ -62,8 +62,9 @@ public class CartServiceImpl implements CartService {
             mergeCart(cartKey, member.getId());
         }
 
-        //1、获取到用户真正能使用的购物车
+        //1、获取到用户真正能使用的购物车 登录的>临时的>立即随机生成
         UserCartKey userCartKey = memberComponent.getCartKey(accessToken, cartKey);
+
         String finalCartKey = userCartKey.getFinalCartKey();
         CartItem cartItem = addItemToCart(skuId, num, finalCartKey);
         CartResponse cartResponse = new CartResponse();

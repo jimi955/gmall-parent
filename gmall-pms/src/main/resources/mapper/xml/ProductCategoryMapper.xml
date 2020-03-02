@@ -24,7 +24,7 @@
 
     <!--List<PmsProductCategoryWithChildrenItem> listWithChildren(Integer i);-->
     <select id="listWithChildren" resultMap="ExtendResultMap">
-        select * from pms_product_category where parent_id =#{i}
+        select * from pms_product_category where parent_id = #{i}
     </select>
 
     <!-- 通用查询结果列 -->

@@ -132,8 +132,9 @@ public class OrderController {
     @GetMapping(value = "/pay", produces = {"text/html"})
     public String pay(@RequestParam("orderSn") String orderSn,
                       @RequestParam("accessToken") String accessToken) {
-        String string = orderService.pay(orderSn, accessToken);
-        return string;
+        // 调用成功 支付宝返回支付页面 用于扫码支付
+        String success = orderService.pay(orderSn, accessToken);
+        return success;
     }
 
     /**
