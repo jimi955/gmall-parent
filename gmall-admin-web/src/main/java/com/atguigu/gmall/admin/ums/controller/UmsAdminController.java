@@ -4,22 +4,22 @@ import com.alibaba.dubbo.config.annotation.Reference;
 import com.atguigu.gmall.admin.ums.vo.UmsAdminLoginParam;
 import com.atguigu.gmall.admin.ums.vo.UmsAdminParam;
 import com.atguigu.gmall.admin.utils.JwtTokenUtil;
+import com.atguigu.gmall.to.CommonResult;
 import com.atguigu.gmall.ums.entity.Admin;
 import com.atguigu.gmall.ums.service.AdminService;
-import com.atguigu.gmall.to.CommonResult;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.lang.reflect.InvocationTargetException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -58,13 +58,22 @@ public class UmsAdminController {
 
     @ApiOperation(value = "用户注册")
     @PostMapping(value = "/register")
-    public Object register(@Valid @RequestBody UmsAdminParam umsAdminParam, BindingResult result) {
-        Admin admin = null;
+    public Object register(@Valid @RequestBody UmsAdminParam umsAdminParam, BindingResult result) throws InvocationTargetException, IllegalAccessException {
         // 使用aop切面完成封装数据的检验 见类DataValidAspect
-        //TODO 完成注册功能
-        log.debug("需要注册用户的详情：{}", umsAdminParam);
-        int a = 10 / 0;
-        return new CommonResult().success(admin);
+
+        Admin admin = new Admin();
+        admin.setCreateTime(new Date());
+        admin.setLoginTime(new Date());
+        admin.setStatus(1);
+        BeanUtils.copyProperties(umsAdminParam, admin);
+
+        int i = adminService.saveAdmin(admin);
+//        int a = 10 / 0;
+        if (i>0) {
+            log.debug("需要注册用户的详情：{}", umsAdminParam);
+            return new CommonResult().success(umsAdminParam);
+        }
+        return new CommonResult().failed();
     }
 
     /**
@@ -163,8 +172,9 @@ public class UmsAdminController {
     @ResponseBody
     public Object getItem(@PathVariable Long id) {
 
-        //TODO 获取指定用户信息
-        return new CommonResult().failed();
+        Admin one = adminService.getById(id);
+
+        return new CommonResult().success(one);
     }
 
     @ApiOperation("更新指定用户信息")
@@ -180,7 +190,14 @@ public class UmsAdminController {
     @RequestMapping(value = "/delete/{id}", method = RequestMethod.POST)
     @ResponseBody
     public Object delete(@PathVariable Long id) {
-        //TODO 删除指定用户信息
+        // 对于多个条件使用 或者删除 多条的可以使用 columnMap
+//        Map<String, Object> columnMap = new HashMap<>();
+//        columnMap.put("email", "test1@163.com");
+
+        boolean b = adminService.removeById(id);
+        if (b) {
+            return new CommonResult().success("OK");
+        }
         return new CommonResult().failed();
     }
 

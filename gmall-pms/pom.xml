@@ -40,6 +40,13 @@
             <version>xin-SNAPSHOT</version>
         </dependency>
 
+
+        <!--<dependency>-->
+            <!--<groupId>com.baomidou</groupId>-->
+            <!--<artifactId>mybatis-plus-boot-starter</artifactId>-->
+            <!--<version>3.1.0</version>-->
+        <!--</dependency>-->
+
         <!--引入shardingjdbc创建主从数据源-->
         <dependency>
             <groupId>io.shardingjdbc</groupId>

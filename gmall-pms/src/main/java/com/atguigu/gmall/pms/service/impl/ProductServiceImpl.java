@@ -272,7 +272,6 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
      * @param ids
      * @param publishStatus
      */
-
     @Override
     public void updatePublishStatus(List<Long> ids, Integer publishStatus) {
 
@@ -422,7 +421,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
         EsProduct esProduct = null;
         //按照id查出商品
         SearchSourceBuilder builder = new SearchSourceBuilder();
-        builder.query(QueryBuilders.nestedQuery("skuProductInfos",QueryBuilders.termQuery("skuProductInfos.id",id), ScoreMode.None));
+        builder.query(QueryBuilders.nestedQuery("skuProductInfos", QueryBuilders.termQuery("skuProductInfos.id", id), ScoreMode.None));
 
         Search build = new Search.Builder(builder.toString()).addIndex(PRODUCT_INDEX).addType(PRODUCT_TYPE).build();
         try {

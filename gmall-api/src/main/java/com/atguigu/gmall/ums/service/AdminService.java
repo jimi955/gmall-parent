@@ -16,4 +16,6 @@ public interface AdminService extends IService<Admin> {
     Admin login(String username, String password);
 
     Admin getUserInfo(String userName);
+
+    int saveAdmin(Admin admin);
 }

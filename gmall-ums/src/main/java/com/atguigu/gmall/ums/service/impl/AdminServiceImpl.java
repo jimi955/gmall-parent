@@ -5,6 +5,7 @@ import com.atguigu.gmall.ums.entity.Admin;
 import com.atguigu.gmall.ums.mapper.AdminMapper;
 import com.atguigu.gmall.ums.service.AdminService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -41,4 +42,11 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements
     public Admin getUserInfo(String userName) {
         return adminMapper.selectOne(new QueryWrapper<Admin>().eq("username", userName));
     }
+
+    @Override
+    public int saveAdmin(Admin admin) {
+        admin.setPassword(DigestUtils.md5DigestAsHex(admin.getPassword().getBytes()));
+        return adminMapper.insert(admin);
+    }
+
 }

@@ -1,6 +1,7 @@
 package com.atguigu.gmall.ums.mapper;
 
 import com.atguigu.gmall.ums.entity.Admin;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**

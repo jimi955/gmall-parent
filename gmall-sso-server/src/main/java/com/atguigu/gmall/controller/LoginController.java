@@ -119,7 +119,7 @@ public class LoginController {
         map.put("username",username);
         map.put("email",username+"@qq.com");
 
-        //2、以上标识用户登录; jwt
+        //2、以上标识用户登录;
         String token = UUID.randomUUID().toString().replace("-", "");
         redisTemplate.opsForValue().set(token,JSON.toJSONString(map));
 

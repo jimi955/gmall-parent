@@ -7,6 +7,9 @@
         <artifactId>gmall-parent</artifactId>
         <version>xin-SNAPSHOT</version>
     </parent>
+    <properties>
+       <lombok.version>1.18.2</lombok.version>
+    </properties>
     <modelVersion>4.0.0</modelVersion>
 
     <!--所有的工具类，通用类-->
@@ -26,7 +29,8 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.2</version>
+            <version>${lombok.version}</version>
+            <!--<optional>true</optional>-->
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/com.alibaba/fastjson -->
